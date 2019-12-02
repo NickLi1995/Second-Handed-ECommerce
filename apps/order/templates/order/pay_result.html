@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% block body %}
+    <div>
+        <h1 style="font-size: 30px;">Your Order: {{ pay_result }}</h1>
+        <a style="font-size: 20px;" href="{% url 'user:order' 1 %}">Go to Your Orders</a>
+    </div>
+{% endblock body %}

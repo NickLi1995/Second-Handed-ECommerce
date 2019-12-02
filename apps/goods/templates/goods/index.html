@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    UIR Seconded-Handed-ECommerce --- HomePage
+{% endblock title %}
+{% block topfiles %}
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/slide.js' %}"></script>
+{% endblock topfiles %}
+
+{% block body %}
+    <div class="navbar_con">
+        <div class="navbar">
+            <h1 class="fl">All Categories</h1>
+            <ul class="navlist fl">
+                <li><a href="#">HomePage</a></li>
+                <li class="interval">|</li>
+                <li><a href="#">Mobile Version</a></li>
+                <li class="interval">|</li>
+                <li><a href="#">Lottery</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="center_con clearfix">
+        <ul class="subnav fl">
+            {% for category in types %}
+                <li><a href="#mode10{{ forloop.counter }}" class="{{ category.logo }}">{{ category.name }}</a></li>
+            {% endfor %}
+        </ul>
+        <div class="slide fl">
+            <ul class="slide_pics">
+                {% for banner in index_banner %}
+                    <li><a href="#"><img alt='slides' src="{{ banner.image.url }}"></a></li>
+                {% endfor %}
+            </ul>
+            <div class="prev"></div>
+            <div class="next"></div>
+            <ul class="points"></ul>
+        </div>
+        <div class="adv fl">
+            {% for banner in promotion_banner %}
+			    <a href="{{ banner.url }}"><img alt="promotion_banner" src="{{ banner.image.url }}"></a>
+		    {% endfor %}
+        </div>
+    </div>
+
+    {% for category in types %}
+        <div class="list_model">
+            <div class="list_title clearfix">
+                <h3 class="fl" id="model01">{{ category.name }}</h3>
+                <div class="subtitle fl">
+                    <span>|</span>
+                    {% for banner in category.title_banner %}
+                        <a href="{% url 'goods:detail' banner.sku.id %}">{{ banner.sku.name }}</a>
+                    {% endfor %}
+                </div>
+                <a href="{% url 'goods:list' category.id 1 %}" class="goods_more fr" id="fault_more">See More</a>
+            </div>
+            <div class="goods_con clearfix">
+                <div class="goods_banner fl"><img alt="category image" src="{{ category.image.url }}"></div>
+                <ul class="goods_list fl">
+                    {% for banner in category.image_banner %}
+                        <li>
+                            <h4><a href="{% url 'goods:detail' banner.sku.id %}">{{ banner.sku.name }}</a></h4>
+                            <a href="{% url 'goods:detail' banner.sku.id %}"><img alt="product image" src="{{ banner.sku.image.url }}"></a>
+                            <div class="prize">$ {{ banner.sku.price }}</div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock body %}
+
+

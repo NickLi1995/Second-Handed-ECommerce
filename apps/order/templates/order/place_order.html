@@ -1,0 +1,111 @@
+{% extends 'base_no_cart.html' %}
+{% block title %}
+    UIR Seconded-Handed-ECommerce Platform --- Submit Order
+{% endblock title %}
+{% block page_title %}
+    Submit Order
+{% endblock page_title %}
+{% block body %}
+    <h3 class="common_title">Confirm Address</h3>
+    <div class="common_list_con clearfix">
+        <dl>
+            <dt>Deliver to: </dt>
+            {% for addr in addrs %}
+                <dd><input type="radio" name="addr_id" value="{{ addr.id }}"
+                           {% if addr.is_default %}checked=""{% endif %}>({{ addr.receiver }}) {{ addr.phone }}</dd>
+            {% endfor %}
+        </dl>
+        <a href="{% url 'user:address' %}" class="edit_site">Edit Delivery Address</a>
+    </div>
+    <h3 class="common_title">Payment Method</h3>
+    <div class="common_list_con clearfix">
+        <div class="pay_style_con clearfix">
+            <input id='cash' type="radio" name="pay_style" value="1" checked>
+            <label class="cash" for="cash">Pay cash on delivery</label>
+            <input id="weixin" type="radio" name="pay_style" value="2">
+            <label class="weixin" for="weixin">WeChat Pay</label>
+            <input id="zhifubao" type="radio" name="pay_style" value="3">
+            <label class="zhifubao" for="zhifubao">AliPay</label>
+            <input id="bank" type="radio" name="pay_style" value="4">
+            <label class="bank" for="bank">UniPay</label>
+            <input id="credit" type="radio" name="pay_style" value="5">
+            <label class="credit" for="credit">Credit Card</label>
+        </div>
+    </div>
+
+    <h3 class="common_title">Products Overview</h3>
+    <div class="common_list_con clearfix">
+        <ul class="goods_list_th clearfix">
+            <li class="col01">Product</li>
+            <li class="col02">Unit</li>
+            <li class="col03">Price</li>
+            <li class="col04">Count</li>
+            <li class="col05">Total price for this product</li>
+        </ul>
+        {% for sku in skus %}
+            <ul class="goods_list_td clearfix">
+                <li class="col01">{{ forloop.counter }}</li>
+                <li class="col02"><img alt='sku_image' src="{{ sku.image.url }}"></li>
+                <li class="col03">{{ sku.name }}</li>
+                <li class="col04">{{ sku.unite }}</li>
+                <li class="col05">${{ sku.price }}</li>
+                <li class="col06">{{ sku.count }}</li>
+                <li class="col07">${{ sku.amount }}</li>
+            </ul>
+        {% endfor %}
+    </div>
+
+    <h3 class="common_title">Total Price</h3>
+    <div class="common_list_con clearfix">
+        <div class="settle_con">
+            <div class="total_goods_count">Total Amount:<em>{{ total_count }}</em>products,
+            Total Price: <b>${{ total_amount }}</b></div>
+            <div class="transit">Shipment Fee: <b>${{ transit_price }}</b></div>
+            <div class="total_pay">Total Price(Products + Shipment): <b>{{ total_pay }}</b></div>
+        </div>
+    </div>
+
+    <div class="order_submit clearfix">
+        {% csrf_token %}
+        <a href="javascript:;" sku_ids="{{ sku_ids }}" id="order_btn">Submit Order</a>
+    </div>
+{% endblock body %}
+{% block bottom %}
+    <div class="popup_con">
+        <div class="popup">
+            <p>Submit Order Successfully!</p>
+        </div>
+        <div class="mask"></div>
+    </div>
+{% endblock bottom %}
+{% block bottomfiles %}
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript">
+        $('#order_btn').click(function(){
+            var $popup_con = $('.popup_con');
+            var addr_id = $('input[name="addr_id"]:checked').val();
+            var pay_method = $('input[name="pay_style"]:checked').val();
+            var sku_ids = $(this).attr('sku_ids');
+            var csrf = $('input[name="csrfmiddlewaretoken"]').val();
+            var params = {
+                'addr_id': addr_id,
+                'pay_method': pay_method,
+                'sku_ids': sku_ids,
+                'csrfmiddlewaretoken': csrf
+            };
+
+            $.post('/order/commit/', params, function(data){
+                if(data.res === 5){
+                    localStorage.setItem('order_finish', 2);
+                    $popup_con.fadeIn('fast', function(){
+                        setTimeout(function(){
+                            $popup_con.fadeOut('fast', function(){
+                                window.location.href = "{% url 'user:order' 1 %}";
+                            });
+                        }, 3000)
+                    });
+                }
+            })
+        })
+    </script>
+{% endblock bottomfiles %}

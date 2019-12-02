@@ -1,0 +1,94 @@
+{% extends 'base_user_center.html' %}
+{% block page_title %}
+    All Orders
+{% endblock page_title %}
+{% block right_content %}
+    <div class="right_content clearfix">
+        {% csrf_token %}
+        <h3 class="common_title2">All Orders</h3>
+        {% if info_msg %}
+            {% for order_info in order_infos_page %}
+                <ul class="order_list_th w978 clearfix">
+                    <li class="col01">{{ order_info.create_time|date:'Y-m-d H:i:s' }}</li>
+                    <li class="col02">Order Id: {{ order_info.order_id }}</li>
+                    <li class="col02 stress">{{ order_info.status_title }}</li>
+                </ul>
+                <table class="order_list_table w980">
+                    <tbody>
+                        <tr>
+                            <td width="55%">
+                                {% for order_good in order_info.order_goods %}
+                                    <ul class="order_goods_list clearfix">
+                                        <li class="col01"><img alt="order_good_sku_image" src="{{ order_good.sku.image.url }}"></li>
+                                        <li class="col02">{{ order_good.sku.name }}<em>${{ order_good.sku.price }}/{{ order_good.sku.unite }}g</em></li>
+                                        <li class="col03">{{ order_good.count }}</li>
+                                        <li class="col04">${{ order_good.amount }}</li>
+                                    </ul>
+                                {% endfor %}
+                            </td>
+                            <td width="15%">${{ order_info.total_price }}</td>
+                            <td width="15%">{{ order_info.status_title }}</td>
+                            <td width="15%"><a href="#" order_id="{{ order_info.order_id }}" status="{{ order_info.order_status }}" class="oper_btn">Go to Checkout</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            {% endfor %}
+        {% else %}
+            You don't have any order
+        {% endif %}
+
+        <div class="pagenation">
+            {% if order_infos_page.has_previous %}
+                <a href="{% url 'user:order' order_infos_page.previous_page_number %}">&lt;Previous</a>
+            {% endif %}
+            {% for pindex in pages %}
+                <a href="{% url 'user:order' pindex %}" {% if pindex == order_infos_page.number %}class="active"{% endif %}>{{ pindex }}</a>
+            {% endfor %}
+            {% if order_infos_page.has_next %}
+                <a href="{% url 'user:order' order_infos_page.next_page_number %}">Next&gt;</a>
+            {% endif %}
+        </div>
+    </div>
+{% endblock right_content %}
+{% block bottomfiles %}
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript">
+        var $oper_btn = $('.oper_btn');
+        $oper_btn.each(function(){
+            var status_dict = {
+                1: 'unpaid',
+                2: 'undelivered',
+                3: 'delivered, waiting for pick up',
+                4: 'unevaluated',
+                5: 'completed',
+            };
+            var status = $(this).attr('status');
+            $(this).text(status_dict[status]);
+        });
+        $oper_btn.click(function(){
+            var status = $(this).attr('status');
+            var order_id = $(this).attr('order_id');
+            if(status == 1){
+                var csrf = $('input[name="csrfmiddlewaretoken"]').val();
+                var params = {
+                    'order_id': order_id,
+                    'csrfmiddlewaretoken': csrf,
+                };
+                $.post('/order/pay/', params, function(data){
+                    if(data.res === 3){
+                        location.href = data.pay_url;
+                    }
+                    else{
+                        alert(data.errmsg);
+                    }
+                })
+            }
+            else if(status === 4){
+                location.href = '/order/comment/' + order_id
+            }
+            else{
+                //Other processing
+            }
+        })
+    </script>
+{% endblock bottomfiles %}

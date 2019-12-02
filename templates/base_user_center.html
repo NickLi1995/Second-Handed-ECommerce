@@ -1,0 +1,18 @@
+{% extends 'base_no_cart.html' %}
+{% block title %}
+    UIR Seconded-handed-ecommerce Platform - User Account Center
+{% endblock title %}
+{% block body %}
+    <div class="main_con clearfix">
+        <div class="left_menu_con clearfix">
+            <h3>User Account Center</h3>
+            <ul>
+                <li><a href="{% url 'user:user' %}" {% if page == 'user' %}class="active"{% endif %}>. Personal Information</a></li>
+                <li><a href="{% url 'user:order' 1 %}" {% if page == 'order' %}class="active"{% endif %}>. All Orders</a></li>
+                <li><a href="{% url 'user:address' %}" {% if page == 'address' %}class="active"{% endif %}>. Address</a></li>
+            </ul>
+        </div>
+        {% block right_content %}
+        {% endblock right_content %}
+    </div>
+{% endblock body %}

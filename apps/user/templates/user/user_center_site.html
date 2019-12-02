@@ -1,0 +1,87 @@
+{% extends 'base_user_center.html' %}
+
+{% block topfiles %}
+    <style type="text/css">
+        .site_con .form_group #is_default{
+            width:25px;
+            height:23px;
+            border:1px solid #ddd;
+            float:none;
+            outline:none;
+            margin-top:0;
+            text-indent:10px;
+            vertical-align:middle;
+        }
+        .site_con #div_is_default{
+            font-size:14px;
+        }
+    </style>
+{% endblock topfiles %}
+
+{% block page_title %}
+Shipment Address
+{% endblock page_title %}
+
+{% block right_content %}
+    <div class="right_content clearfix">
+        <h3 class="common_title2">Shipment Address</h3>
+
+        <div class="site_con">
+            <dl>
+                <dt>Current Default Address: </dt>
+                {% if address %}
+                    <dd>Address: {{ address.addr }}</dd>
+                    <dd>Receiver: {{ address.receiver }}</dd>
+                    <dd>Phone Number: {{ address.phone }}</dd>
+                {% else %}
+                    <dd>You don't have a default address</dd>
+                {% endif %}
+            </dl>
+        </div>
+
+        <div class="site_con">
+            <dl>
+                <dt>Current Saved Shipment Address: </dt>
+                {% if all_address %}
+                    {% for every_address in all_address %}
+                        <hr />
+                        <dd>Address: {{ every_address.addr }}</dd>
+                        <dd>Receiver: {{ every_address.receiver }}</dd>
+                        <dd>Phone Number: {{ every_address.phone }}</dd>
+                    {% endfor %}
+                {% else %}
+                    <dd>You don't have any shipment address</dd>
+                {% endif %}
+            </dl>
+        </div>
+
+        <h3 class="site_con">Add new shipment address</h3>
+        <div class="site_con">
+            <form action="{% url 'user:address' %}" method="post">
+                {% csrf_token %}
+                <div class="form_group">
+                    <label for="receiver">Receiver: </label>
+                    <input type="text" id='receiver' name="receiver" required="required">
+                </div>
+                <div class="form_group form_group2">
+                    <label for="address">Address Detail</label>
+                    <textarea class="site_area" id="address" name="addr" required="required"></textarea>
+                </div>
+                <div class="form_group">
+                    <label for="zipcode">Zip code: </label>
+                    <input type="text" id="zipcode" name="zip_code" required="required">
+                </div>
+                <div class="form_group">
+                    <label for="phone">Phone Number: </label>
+                    <input type="text" id="phone" name="phone" required="required">
+                </div>
+                <div class="form_group" id="div_is_default">
+                    <label for="is_default">As default address: </label>
+                    <input type="radio" id="is_default" name="is_default" checked value="0">Yes
+                </div>
+                <input type="submit" name="" value="submit" class="info_submit">
+            </form>
+            <label style="color:red">{{ errmsg }}</label>
+        </div>
+    </div>
+{% endblock right_content %}

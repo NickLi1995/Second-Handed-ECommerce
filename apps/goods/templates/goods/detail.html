@@ -1,0 +1,174 @@
+{% extends 'base_detail_list.html' %}
+{% block title %}
+    UIR Seconded-Handed-ECommerce Platform --- Product Detail
+{% endblock title %}
+{% block main_context %}
+    <div class="breadcrumb">
+        <a href="#">All Categories</a>
+        <span>></span>
+        <a href="{% url 'goods:list' sku.category.id 1 %}">{{ sku.category.name }}</a>
+        <span>></span>
+        <a href="#">Product Detail</a>
+    </div>
+
+    <div class="goods_detail_con clearfix">
+        <div class="goods_detail_pic fl"><img alt='sku_image' src="{{ sku.image.url }}"></div>
+        <div class="goods_detail_list fr">
+            <h3>{{ sku.name }}</h3>
+            <p>{{ sku.desc }}</p>
+            <div class="prize_bar">
+                <span class="show_pirze">$<em>{{ sku.price }}</em></span>
+                <span class="show_unit">Unit: {{ sku.unite }}</span>
+            </div>
+            <div class="goods_num clearfix">
+                <div class="num_name fl">Amount: </div>
+                <div class="num_add fl">
+                    <label for="num_show"></label>
+                    <input id='num_show' type="text" class="num_show fl" value="1">
+                    <a href="javascript:;" class="add fr">+</a>
+                    <a href="javascript:;" class="minus fr">-</a>
+                </div>
+            </div>
+
+        <div>
+            <div>More of this products:</div>
+            <div>
+                {% for sku in same_spu_skus %}
+                    <a href="{% url 'goods:detail' sku.id %}">{{ sku.name }}</a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="total">Total price: <em>${{ sku.price }}</em></div>
+        <div class="operate_btn">
+            <a href="javascript:;" class="buy_btn">Buy</a>
+            {% csrf_token %}
+            <a href="javascript:;" class="add_cart" sku_id="{{ sku.id }}" id="add_cart">Add to Cart</a>
+        </div>
+        </div>
+    </div>
+
+    <div class="main_wrap clearfix">
+        <div class="l_warp fl clearfix">
+            <div class="new_goods">
+                <h3>New Products</h3>
+                <ul>
+                    {% for sku in new_skus %}
+                        <li>
+                            <a href="{% url 'goods:detail' sku.id %}"><img alt='new_sku_image' src="{{ sku.image.url }}"></a>
+                            <h4><a href="{% url 'goods:detail' sku.id %}">{{ sku.name }}</a></h4>
+                            <div class="prize">${{ sku.price }}</div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="r_wrap fr clearfix">
+            <ul class="detail_tab clearfix">
+                <li class="active">Product Intro</li>
+                <li>Comment</li>
+            </ul>
+            <div class="tab_content" style="display:none;">
+                <dl>
+                    {% for order_sku in order_skus %}
+                        <dt>Comment time: {{ order_sku.update_time }}&nbsp;&nbsp;User: {{ order_sku.order.user.username }}</dt>
+                        <dd>Comment content: {{ order_sku.comment }}</dd>
+                    {% empty %}
+                        <dd>No comment about this product</dd>
+                    {% endfor %}
+                </dl>
+            </div>
+            <div class="tab_content">
+                <dl>
+                    <dt>Product Detail: </dt>
+                    <dd>{{ sku.goods.detail|safe }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+{% endblock main_context %}
+
+{% block bottom %}
+    <div class="add_jump"></div>
+{% endblock bottom %}
+
+{% block bottomfiles %}
+{#    <script type="text/javascript" src="{% static 'js/jquery-1.12.4.min.js' %}"></script>#}
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript">
+        var $show_price = $('.show_pirze');
+        var $num_show = $('.num_show');
+        var $total = $('.total');
+        var $add = $('.add');
+        var $minus = $('.minus');
+        function update_sku_amount() {
+            var price = $show_price.children('em').text();
+            var count = $num_show.val();
+            var amount = parseInt(count) * parseFloat(price);
+            $total.children('em').text('$' + amount.toFixed(2));
+        }
+
+        $add.click(function() {
+            var count = $num_show.val();
+            count = parseInt(count) + 1;
+            $num_show.val(count);
+            update_sku_amount();
+        });
+
+        $minus.click(function() {
+            var count = $num_show.val();
+            count = parseInt(count) - 1;
+            if (count <= 0){
+                count = 1;
+            }
+            $num_show.val(count);
+            update_sku_amount()
+        });
+
+        $num_show.blur(function() {
+            var count = $num_show.val();
+            if (isNaN(count) || count.trim().length===0 || parseInt(count) <= 0){
+                count = 1;
+            }
+            count = parseInt(count);
+            $num_show.val(count);
+            update_sku_amount();
+        });
+
+        $add_cart = $('#add_cart');
+        $show_count = $('#show_count');
+        $add_jump = $('.add_jump');
+
+        var $add_x = $add_cart.offset().top;
+        var $add_y = $add_cart.offset().left;
+        var $to_x = $show_count.offset().top;
+        var $to_y = $show_count.offset().left;
+
+        $add_cart.click(function(){
+            var sku_id = $(this).attr('sku_id');
+            var count = $num_show.val();
+            var csrf = $('input[name="csrfmiddlewaretoken"]').val();
+            var params = {
+                'sku_id': sku_id,
+                'count': count,
+                'csrfmiddlewaretoken': csrf
+            };
+            $.post('/cart/add/', params, function(data){
+                if (data.res === 5){
+                    $add_jump.css({'left':$add_y+80,'top':$add_x+10,'display':'block'})
+                    $add_jump.stop().animate({
+                        'left':$to_y+7,
+                        'top':$to_x+7},
+                        'fast', function(){
+                        $add_jump.fadeOut('fast', function(){
+                            $show_count.html(data.cart_count);
+                        });
+                        });
+                }
+                else {
+                    alert(data.errmsg);
+                }
+            })
+        });
+    </script>
+{% endblock bottomfiles %}

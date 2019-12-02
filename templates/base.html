@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock title %}</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/reset.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+    {% block topfiles %}
+    {% endblock topfiles %}
+</head>
+<body>
+    {% block header_con %}
+        <div class="header_con">
+            <div class="header">
+                <div class="welcome fl">Welcome to UIR Seconded-handed-ecommerce Platform</div>
+                <div class="fr">
+                    {% if user.is_authenticated %}
+                        <div class="login_info fl">
+                            Welcome: <em>{{ user.username }}</em>
+                            <span>|</span>
+                            <a href="{% url 'user:logout' %}">Logout</a>
+                        </div>
+                    {% else %}
+                        <div class="login_btn fl">
+                            <a href="{% url 'user:login' %}">Login</a>
+                            <span>|</span>
+                            <a href="{% url 'user:register' %}">Register</a>
+                        </div>
+                    {% endif %}
+                    <div class="user_link fl">
+                        <span>|</span>
+                        <a href="{% url 'user:user' %}">My Account</a>
+                        <span>|</span>
+                        <a href="{% url 'cart:show' %}">My Cart</a>
+                        <span>|</span>
+                        <a href="{% url 'user:order' 1 %}">My Order</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock header_con %}
+    {% block search_bar %}
+        <div class="search_bar clearfix">
+            <a href="{% url 'goods:index' %}" class="logo fl"><img alt='logo' src="{% static 'images/logo1.png' %}"></a>
+            <div class="search_con fl">
+                <form method="get" action="/search/">
+                    <input type="text" class="input_text fl" name="q" placeholder="search products">
+                    <input type="button" class="input_btn fr" name="" value="search">
+                </form>
+            </div>
+            <div class="guest_cart fr">
+			    <a href="{% url 'cart:show' %}" class="cart_name fl">My Cart</a>
+			    <div class="goods_count fl" id="show_count">{{ cart_count }}</div>
+		    </div>
+        </div>
+    {% endblock search_bar %}
+
+    {% block body %}
+    {% endblock body %}
+
+    <div class="footer">
+        <div class="foot_link">
+            <a href="#">About us</a>
+            <span>|</span>
+            <a href="#">Contact us</a>
+            <span>|</span>
+            <a href="#">Recruit</a>
+            <span>|</span>
+            <a href="#">Friendly Link</a>
+        </div>
+        <p>CopyRight @ 2019 UIR E-commerce Platform Team</p>
+        <p>Phone: (682)241-7115</p>
+    </div>
+
+    {% block bottom %}
+    {% endblock bottom %}
+
+    {% block bottomfiles %}
+    {% endblock bottomfiles %}
+</body>
+</html>
